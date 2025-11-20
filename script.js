@@ -14,6 +14,8 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 let currentUser = null;
+let isAdmin = false;
+let leadsUnsubscribe = null;
 
 // ==== LOGIN ====
 function login() {
@@ -31,6 +33,10 @@ function login() {
 
 // ==== LOGOUT ====
 function logout() {
+  if (leadsUnsubscribe) {
+    leadsUnsubscribe();
+    leadsUnsubscribe = null;
+  }
   auth.signOut();
 }
 
@@ -38,11 +44,28 @@ function logout() {
 auth.onAuthStateChanged(async (user) => {
   if (user) {
     currentUser = user;
+
+    // check if this user is admin (role from users collection)
+    try {
+      const userDoc = await db.collection("users").doc(user.uid).get();
+      isAdmin = userDoc.exists && userDoc.data().role === "admin";
+    } catch (e) {
+      console.error("Error reading user role", e);
+      isAdmin = false;
+    }
+
     document.getElementById("login-section").style.display = "none";
     document.getElementById("app-section").style.display = "block";
     loadLeads();
   } else {
     currentUser = null;
+    isAdmin = false;
+
+    if (leadsUnsubscribe) {
+      leadsUnsubscribe();
+      leadsUnsubscribe = null;
+    }
+
     document.getElementById("login-section").style.display = "block";
     document.getElementById("app-section").style.display = "none";
     document.getElementById("lead-table").innerHTML = "";
@@ -74,6 +97,7 @@ async function addLead() {
       nextFollowupDate: nextDate || "",
       nextFollowupNote: note || "",
       assignedTo: currentUser.uid,
+      assignedEmail: currentUser.email || "",
       createdAt: now,
       lastUpdated: now
     });
@@ -92,23 +116,32 @@ async function addLead() {
   }
 }
 
-// ==== LOAD LEADS FOR CURRENT USER ====
+// ==== LOAD LEADS ====
+// admin -> all leads
+// agent -> only own leads
 function loadLeads() {
   if (!currentUser) return;
 
-  const ref = db.collection("leads")
-                .where("assignedTo", "==", currentUser.uid);
+  if (leadsUnsubscribe) {
+    leadsUnsubscribe();
+    leadsUnsubscribe = null;
+  }
 
-  ref.onSnapshot(snapshot => {
+  let ref = db.collection("leads");
+  if (!isAdmin) {
+    ref = ref.where("assignedTo", "==", currentUser.uid);
+  }
+
+  leadsUnsubscribe = ref.onSnapshot(snapshot => {
     const table = document.getElementById("lead-table");
     table.innerHTML = "";
 
     snapshot.forEach(doc => {
       const data = doc.data();
 
-      // handle older docs that may still use nextDate/note
       const nextDate = data.nextFollowupDate || data.nextDate || "";
       const followNote = data.nextFollowupNote || data.note || "";
+      const assignedEmail = data.assignedEmail || "";
 
       let lastUpdatedDisplay = "";
       if (data.lastUpdated && typeof data.lastUpdated.toDate === "function") {
@@ -121,6 +154,7 @@ function loadLeads() {
         <td>${data.name || ""}</td>
         <td>${data.phone || ""}</td>
         <td>${data.source || ""}</td>
+        <td>${assignedEmail}</td>
         <td>${lastUpdatedDisplay}</td>
         <td><input type="date" value="${nextDate}" id="nd-${doc.id}"></td>
         <td><textarea id="nt-${doc.id}">${followNote}</textarea></td>
