@@ -50,6 +50,8 @@ auth.onAuthStateChanged(async (user) => {
 });
 
 // ==== ADD LEAD ====
+// createdAt + lastUpdated auto = now
+// nextFollowupDate + nextFollowupNote from form
 async function addLead() {
   if (!currentUser) {
     alert("Not logged in");
@@ -63,14 +65,17 @@ async function addLead() {
   const note = document.getElementById("lead-note").value;
 
   try {
+    const now = firebase.firestore.FieldValue.serverTimestamp();
+
     await db.collection("leads").add({
       name,
       phone,
       source,
-      nextDate,
-      note,
+      nextFollowupDate: nextDate || "",
+      nextFollowupNote: note || "",
       assignedTo: currentUser.uid,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: now,
+      lastUpdated: now
     });
 
     document.getElementById("lead-msg").innerText = "Lead added.";
@@ -100,15 +105,25 @@ function loadLeads() {
 
     snapshot.forEach(doc => {
       const data = doc.data();
+
+      // handle older docs that may still use nextDate/note
+      const nextDate = data.nextFollowupDate || data.nextDate || "";
+      const followNote = data.nextFollowupNote || data.note || "";
+
+      let lastUpdatedDisplay = "";
+      if (data.lastUpdated && typeof data.lastUpdated.toDate === "function") {
+        lastUpdatedDisplay = data.lastUpdated.toDate().toLocaleDateString("en-GB");
+      }
+
       const tr = document.createElement("tr");
-      const safeDate = data.nextDate || "";
 
       tr.innerHTML = `
         <td>${data.name || ""}</td>
         <td>${data.phone || ""}</td>
         <td>${data.source || ""}</td>
-        <td><input type="date" value="${safeDate}" id="nd-${doc.id}"></td>
-        <td><textarea id="nt-${doc.id}">${data.note || ""}</textarea></td>
+        <td>${lastUpdatedDisplay}</td>
+        <td><input type="date" value="${nextDate}" id="nd-${doc.id}"></td>
+        <td><textarea id="nt-${doc.id}">${followNote}</textarea></td>
         <td><button onclick="updateLead('${doc.id}')">Save</button></td>
       `;
 
@@ -120,15 +135,17 @@ function loadLeads() {
   });
 }
 
-// ==== UPDATE LEAD (next date + note) ====
+// ==== UPDATE LEAD ====
+// updates next follow-up date + note and bumps lastUpdated
 async function updateLead(id) {
   const nextDate = document.getElementById(`nd-${id}`).value;
   const note = document.getElementById(`nt-${id}`).value;
 
   try {
     await db.collection("leads").doc(id).update({
-      nextDate,
-      note
+      nextFollowupDate: nextDate || "",
+      nextFollowupNote: note || "",
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
     });
     alert("Updated");
   } catch (e) {
