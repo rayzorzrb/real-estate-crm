@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <title>Real Estate CRM</title>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+
+  <!-- IMPORTANT: use *compat* builds so `firebase.*` works -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
 
 <h2>Real Estate CRM</h2>
 
-<!-- LOGIN SECTION -->
 <div id="login-section">
   <h3>Login</h3>
   <input id="login-email" placeholder="Email"><br><br>
@@ -21,16 +22,6 @@
   <p id="login-error" style="color:red;"></p>
 </div>
 
-<!-- REGISTER SECTION (ADMIN ONLY, SHOWN AFTER LOGIN IF admin) -->
-<div id="register-section" style="display:none;">
-  <h3>Create User (Admin Only)</h3>
-  <input id="reg-email" placeholder="User Email"><br><br>
-  <input id="reg-password" placeholder="User Password" type="password"><br><br>
-  <button onclick="registerUser()">Create User</button>
-  <p id="register-msg"></p>
-</div>
-
-<!-- MAIN APP -->
 <div id="app-section" style="display:none;">
   <h3>New Lead</h3>
 
@@ -45,7 +36,7 @@
 
   <hr>
 
-  <h3>Leads</h3>
+  <h3>My Leads</h3>
   <table border="1" cellpadding="5">
     <thead>
       <tr>
