@@ -75,6 +75,7 @@ async function addLead() {
 
     document.getElementById("lead-msg").innerText = "Lead added.";
 
+    // clear form
     document.getElementById("lead-name").value = "";
     document.getElementById("lead-phone").value = "";
     document.getElementById("lead-source").value = "";
@@ -91,8 +92,7 @@ function loadLeads() {
   if (!currentUser) return;
 
   const ref = db.collection("leads")
-                .where("assignedTo", "==", currentUser.uid)
-                .orderBy("createdAt", "desc");
+                .where("assignedTo", "==", currentUser.uid);
 
   ref.onSnapshot(snapshot => {
     const table = document.getElementById("lead-table");
@@ -100,7 +100,6 @@ function loadLeads() {
 
     snapshot.forEach(doc => {
       const data = doc.data();
-
       const tr = document.createElement("tr");
       const safeDate = data.nextDate || "";
 
@@ -117,6 +116,7 @@ function loadLeads() {
     });
   }, err => {
     console.error("Error loading leads", err);
+    alert("Error loading leads: " + err.message);
   });
 }
 
@@ -136,4 +136,3 @@ async function updateLead(id) {
     alert("Error updating: " + e.message);
   }
 }
-
