@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Real Estate CRM</title>
 
-  <!-- IMPORTANT: use *compat* builds so `firebase.*` works -->
+  <!-- Firebase compat builds -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -14,6 +14,7 @@
 
 <h2>Real Estate CRM</h2>
 
+<!-- LOGIN -->
 <div id="login-section">
   <h3>Login</h3>
   <input id="login-email" placeholder="Email"><br><br>
@@ -22,14 +23,19 @@
   <p id="login-error" style="color:red;"></p>
 </div>
 
+<!-- MAIN APP -->
 <div id="app-section" style="display:none;">
   <h3>New Lead</h3>
 
   <input id="lead-name" placeholder="Name"><br><br>
   <input id="lead-phone" placeholder="Phone"><br><br>
   <input id="lead-source" placeholder="Source (MagicBricks / Housing / etc)"><br><br>
+
+  <label>Next follow-up date:</label><br>
   <input id="lead-nextdate" type="date"><br><br>
-  <textarea id="lead-note" placeholder="Note"></textarea><br><br>
+
+  <label>Next follow-up note:</label><br>
+  <textarea id="lead-note" placeholder="What to do on next call / visit"></textarea><br><br>
 
   <button onclick="addLead()">Add Lead</button>
   <p id="lead-msg"></p>
@@ -43,8 +49,9 @@
         <th>Name</th>
         <th>Phone</th>
         <th>Source</th>
-        <th>Next Date</th>
-        <th>Note</th>
+        <th>Last Updated</th>
+        <th>Next Follow-up Date</th>
+        <th>Next Follow-up Note</th>
         <th>Update</th>
       </tr>
     </thead>
