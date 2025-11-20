@@ -1,11 +1,70 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Real Estate CRM (WIP)</title>
-  </head>
-  <body>
-    <h1>Real Estate CRM – Vercel Deployment Test</h1>
-    <p>If you can see this on Vercel, everything is working.</p>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>Real Estate CRM</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+</head>
+
+<body>
+
+<h2>Real Estate CRM</h2>
+
+<!-- LOGIN SECTION -->
+<div id="login-section">
+  <h3>Login</h3>
+  <input id="login-email" placeholder="Email"><br><br>
+  <input id="login-password" placeholder="Password" type="password"><br><br>
+  <button onclick="login()">Login</button>
+  <p id="login-error" style="color:red;"></p>
+</div>
+
+<!-- REGISTER SECTION (ADMIN ONLY, SHOWN AFTER LOGIN IF admin) -->
+<div id="register-section" style="display:none;">
+  <h3>Create User (Admin Only)</h3>
+  <input id="reg-email" placeholder="User Email"><br><br>
+  <input id="reg-password" placeholder="User Password" type="password"><br><br>
+  <button onclick="registerUser()">Create User</button>
+  <p id="register-msg"></p>
+</div>
+
+<!-- MAIN APP -->
+<div id="app-section" style="display:none;">
+  <h3>New Lead</h3>
+
+  <input id="lead-name" placeholder="Name"><br><br>
+  <input id="lead-phone" placeholder="Phone"><br><br>
+  <input id="lead-source" placeholder="Source (MagicBricks / Housing / etc)"><br><br>
+  <input id="lead-nextdate" type="date"><br><br>
+  <textarea id="lead-note" placeholder="Note"></textarea><br><br>
+
+  <button onclick="addLead()">Add Lead</button>
+  <p id="lead-msg"></p>
+
+  <hr>
+
+  <h3>Leads</h3>
+  <table border="1" cellpadding="5">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Source</th>
+        <th>Next Date</th>
+        <th>Note</th>
+        <th>Update</th>
+      </tr>
+    </thead>
+    <tbody id="lead-table"></tbody>
+  </table>
+
+  <br>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<script src="script.js"></script>
+
+</body>
 </html>
