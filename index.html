@@ -25,6 +25,8 @@
 
 <!-- MAIN APP -->
 <div id="app-section" style="display:none;">
+
+  <!-- NEW LEAD FORM -->
   <h3>New Lead</h3>
 
   <input id="lead-name" placeholder="Name"><br><br>
@@ -42,6 +44,35 @@
 
   <hr>
 
+  <!-- CALENDAR VIEW -->
+  <h3>Calendar (dots = leads with next follow-up)</h3>
+
+  <div id="calendar-controls">
+    <button onclick="prevMonth()">&lt;</button>
+    <span id="calendar-month-label"></span>
+    <button onclick="nextMonth()">&gt;</button>
+  </div>
+
+  <table border="1" cellpadding="5" id="calendar-table">
+    <thead>
+      <tr>
+        <th>Mon</th>
+        <th>Tue</th>
+        <th>Wed</th>
+        <th>Thu</th>
+        <th>Fri</th>
+        <th>Sat</th>
+        <th>Sun</th>
+      </tr>
+    </thead>
+    <tbody id="calendar-body">
+      <!-- filled by script -->
+    </tbody>
+  </table>
+
+  <hr>
+
+  <!-- LEADS TABLE -->
   <h3>My Leads (Admin sees all leads)</h3>
   <table border="1" cellpadding="5">
     <thead>
