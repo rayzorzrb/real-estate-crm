@@ -16,11 +16,21 @@ const db = firebase.firestore();
 let currentUser = null;
 let isAdmin = false;
 let leadsUnsubscribe = null;
-let leadsCache = []; // store leads for calendar
+let leadsCache = [];
 
 // calendar state
 let calYear = new Date().getFullYear();
 let calMonth = new Date().getMonth(); // 0-11
+
+// ======= VIEW SWITCHING =======
+function showView(name) {
+  const ids = ["dashboard", "newLead", "calendar", "leads"];
+  ids.forEach(id => {
+    const el = document.getElementById("view-" + id);
+    if (!el) return;
+    el.style.display = id === name ? "block" : "none";
+  });
+}
 
 // ==== LOGIN ====
 function login() {
@@ -61,9 +71,11 @@ auth.onAuthStateChanged(async (user) => {
 
     document.getElementById("login-section").style.display = "none";
     document.getElementById("app-section").style.display = "block";
+    document.getElementById("top-nav").style.display = "block";
 
-    renderCalendar(); // initial render
-    loadLeads();      // hook snapshot
+    renderCalendar();
+    loadLeads();
+    showView("dashboard");   // default view
   } else {
     currentUser = null;
     isAdmin = false;
@@ -75,8 +87,11 @@ auth.onAuthStateChanged(async (user) => {
 
     document.getElementById("login-section").style.display = "block";
     document.getElementById("app-section").style.display = "none";
+    document.getElementById("top-nav").style.display = "none";
     document.getElementById("lead-table").innerHTML = "";
     document.getElementById("calendar-body").innerHTML = "";
+    leadsCache = [];
+    updateDashboard();
   }
 });
 
@@ -121,7 +136,7 @@ async function addLead() {
   }
 }
 
-// ==== LOAD LEADS (table + update calendar cache) ====
+// ==== LOAD LEADS (table + cache for dashboard & calendar) ====
 function loadLeads() {
   if (!currentUser) return;
 
@@ -138,7 +153,7 @@ function loadLeads() {
   leadsUnsubscribe = ref.onSnapshot(snapshot => {
     const table = document.getElementById("lead-table");
     table.innerHTML = "";
-    leadsCache = []; // reset
+    leadsCache = [];
 
     snapshot.forEach(doc => {
       const data = doc.data();
@@ -167,8 +182,8 @@ function loadLeads() {
       table.appendChild(tr);
     });
 
-    // after table is updated, refresh calendar dots
     renderCalendar();
+    updateDashboard();
   }, err => {
     console.error("Error loading leads", err);
     alert("Error loading leads: " + err.message);
@@ -193,34 +208,54 @@ async function updateLead(id) {
   }
 }
 
-// ================== CALENDAR ==================
+// ===== DASHBOARD STATS =====
+function updateDashboard() {
+  const total = leadsCache.length;
 
-// helper: format YYYY-MM-DD
+  const today = new Date();
+  const todayISO = today.toISOString().slice(0, 10);
+  const in7 = new Date(today);
+  in7.setDate(in7.getDate() + 7);
+  const in7ISO = in7.toISOString().slice(0, 10);
+
+  let upcoming = 0;
+  let overdue = 0;
+
+  leadsCache.forEach(l => {
+    const d = l.nextFollowupDate;
+    if (!d) return;
+    if (d < todayISO) overdue++;
+    if (d >= todayISO && d <= in7ISO) upcoming++;
+  });
+
+  document.getElementById("dash-total").innerText = total;
+  document.getElementById("dash-upcoming").innerText = upcoming;
+  document.getElementById("dash-overdue").innerText = overdue;
+}
+
+// ===== CALENDAR LOGIC =====
 function formatDateISO(y, m, d) {
   const mm = (m + 1).toString().padStart(2, "0");
   const dd = d.toString().padStart(2, "0");
   return `${y}-${mm}-${dd}`;
 }
 
-// render current month calendar using leadsCache
 function renderCalendar() {
+  const header = document.getElementById("calendar-month-label");
+  const body = document.getElementById("calendar-body");
+  if (!header || !body) return;
+
   const monthNames = [
     "January","February","March","April","May","June",
     "July","August","September","October","November","December"
   ];
-
-  const header = document.getElementById("calendar-month-label");
-  if (!header) return; // not logged in yet
-
   header.innerText = `${monthNames[calMonth]} ${calYear}`;
 
-  const body = document.getElementById("calendar-body");
   body.innerHTML = "";
 
   const firstDay = new Date(calYear, calMonth, 1);
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
 
-  // Monday = 0, Sunday = 6
   let startOffset = firstDay.getDay() - 1;
   if (startOffset < 0) startOffset = 6;
 
@@ -237,10 +272,7 @@ function renderCalendar() {
         td.innerHTML = "&nbsp;";
       } else {
         const isoDate = formatDateISO(calYear, calMonth, currentDay);
-
-        // check how many leads have this nextFollowupDate
         const count = leadsCache.filter(l => (l.nextFollowupDate || "") === isoDate).length;
-
         td.innerHTML = `<div>${currentDay}</div>${count > 0 ? "<div>•</div>" : ""}`;
         currentDay++;
       }
@@ -253,7 +285,6 @@ function renderCalendar() {
   }
 }
 
-// navigate months
 function prevMonth() {
   calMonth--;
   if (calMonth < 0) {
