@@ -23,75 +23,92 @@
   <p id="login-error" style="color:red;"></p>
 </div>
 
-<!-- MAIN APP -->
+<!-- TOP NAV (visible after login) -->
+<div id="top-nav" style="display:none; margin-bottom:16px;">
+  <button onclick="showView('dashboard')">Dashboard</button>
+  <button onclick="showView('newLead')">New Lead</button>
+  <button onclick="showView('calendar')">Calendar</button>
+  <button onclick="showView('leads')">Leads</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- MAIN APP WRAPPER -->
 <div id="app-section" style="display:none;">
 
-  <!-- NEW LEAD FORM -->
-  <h3>New Lead</h3>
-
-  <input id="lead-name" placeholder="Name"><br><br>
-  <input id="lead-phone" placeholder="Phone"><br><br>
-  <input id="lead-source" placeholder="Source (MagicBricks / Housing / etc)"><br><br>
-
-  <label>Next follow-up date:</label><br>
-  <input id="lead-nextdate" type="date"><br><br>
-
-  <label>Next follow-up note:</label><br>
-  <textarea id="lead-note" placeholder="What to do on next call / visit"></textarea><br><br>
-
-  <button onclick="addLead()">Add Lead</button>
-  <p id="lead-msg"></p>
-
-  <hr>
-
-  <!-- CALENDAR VIEW -->
-  <h3>Calendar (dots = leads with next follow-up)</h3>
-
-  <div id="calendar-controls">
-    <button onclick="prevMonth()">&lt;</button>
-    <span id="calendar-month-label"></span>
-    <button onclick="nextMonth()">&gt;</button>
+  <!-- DASHBOARD VIEW -->
+  <div id="view-dashboard">
+    <h3>Dashboard</h3>
+    <p>Total leads: <span id="dash-total">0</span></p>
+    <p>Upcoming (next 7 days): <span id="dash-upcoming">0</span></p>
+    <p>Overdue follow-ups: <span id="dash-overdue">0</span></p>
   </div>
 
-  <table border="1" cellpadding="5" id="calendar-table">
-    <thead>
-      <tr>
-        <th>Mon</th>
-        <th>Tue</th>
-        <th>Wed</th>
-        <th>Thu</th>
-        <th>Fri</th>
-        <th>Sat</th>
-        <th>Sun</th>
-      </tr>
-    </thead>
-    <tbody id="calendar-body">
-      <!-- filled by script -->
-    </tbody>
-  </table>
+  <!-- NEW LEAD VIEW -->
+  <div id="view-newLead" style="display:none;">
+    <h3>New Lead</h3>
 
-  <hr>
+    <input id="lead-name" placeholder="Name"><br><br>
+    <input id="lead-phone" placeholder="Phone"><br><br>
+    <input id="lead-source" placeholder="Source (MagicBricks / Housing / etc)"><br><br>
 
-  <!-- LEADS TABLE -->
-  <h3>My Leads (Admin sees all leads)</h3>
-  <table border="1" cellpadding="5">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Phone</th>
-        <th>Source</th>
-        <th>User</th>
-        <th>Last Updated</th>
-        <th>Next Follow-up Date</th>
-        <th>Next Follow-up Note</th>
-        <th>Update</th>
-      </tr>
-    </thead>
-    <tbody id="lead-table"></tbody>
-  </table>
+    <label>Next follow-up date:</label><br>
+    <input id="lead-nextdate" type="date"><br><br>
 
-  <br>
-  <button onclick="logout()">Logout</button>
+    <label>Next follow-up note:</label><br>
+    <textarea id="lead-note" placeholder="What to do on next call / visit"></textarea><br><br>
+
+    <button onclick="addLead()">Add Lead</button>
+    <p id="lead-msg"></p>
+  </div>
+
+  <!-- CALENDAR VIEW -->
+  <div id="view-calendar" style="display:none;">
+    <h3>Calendar (dots = leads with next follow-up)</h3>
+
+    <div id="calendar-controls">
+      <button onclick="prevMonth()">&lt;</button>
+      <span id="calendar-month-label"></span>
+      <button onclick="nextMonth()">&gt;</button>
+    </div>
+
+    <table border="1" cellpadding="5" id="calendar-table">
+      <thead>
+        <tr>
+          <th>Mon</th>
+          <th>Tue</th>
+          <th>Wed</th>
+          <th>Thu</th>
+          <th>Fri</th>
+          <th>Sat</th>
+          <th>Sun</th>
+        </tr>
+      </thead>
+      <tbody id="calendar-body">
+        <!-- filled by script -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- LEADS TABLE VIEW -->
+  <div id="view-leads" style="display:none;">
+    <h3>My Leads (Admin sees all leads)</h3>
+    <table border="1" cellpadding="5">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Source</th>
+          <th>User</th>
+          <th>Last Updated</th>
+          <th>Next Follow-up Date</th>
+          <th>Next Follow-up Note</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="lead-table"></tbody>
+    </table>
+  </div>
+
 </div>
 
 <script src="script.js"></script>
